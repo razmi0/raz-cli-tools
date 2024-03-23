@@ -6,6 +6,7 @@ import { setTimeout } from "node:timers/promises";
 import path from "node:path";
 import { access, writeFile, mkdir } from "node:fs/promises";
 
+// const cliPath = process.argv[1]; // /Users/pino/.nvm/versions/node/v16.20.1/bin/raz
 const projectRoot = process.cwd();
 
 const outputDir = {
@@ -116,8 +117,6 @@ const namesList = [
   library.icon.map((item) => item.name),
   library.tailwind.map((item) => item.name),
 ];
-
-// const cliPath = process.argv[1]; // /Users/pino/.nvm/versions/node/v16.20.1/bin/raz
 
 /**
  * @async
