@@ -8,13 +8,14 @@
     "raz": "./bin/index.js"
   },
   "scripts": {
-    "test": "test",
-    "tw:build": "npx tailwindcss -i ./tw/input.css -o ./tw/output.css",
-    "tw:watch": "npx tailwindcss -i ./tw/input.css -o ./tw/output.css --watch"
+    "test": "test"
   },
   "author": "razmio",
   "license": "ISC",
   "dependencies": {
     "@clack/prompts": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30"
   }
 }
