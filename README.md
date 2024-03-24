@@ -7,7 +7,7 @@ Allow you to add components, hooks, icons, and tailwind config to your project w
 ### Usage
 
 ```bash
-raz <action> <type> <name>
+$ raz <action> <type> <name>
 ```
 
 ### Actions
@@ -17,25 +17,39 @@ raz <action> <type> <name>
 
 ### Types and Names
 
-- `component` : Add a component to your project.
-  - `Hello` : Add a component named `Hello`.
-    > raz add component Hello
-- `hook` : Add a hook to your project.
-  - `useHello` : Add a hook named `useHello`.
-    > raz add hook useHello
-- `icon` : Add an icon to your project.
-  - `hello` : Add an icon named `HelloIcon`.
-    > raz add icon hello
-- `tailwind` : Add a tailwind config to your project.
-  - `config` : Add a tailwind config file.
-    > raz add tailwind config
-  - `input` : Add a tailwind input file.
-    > raz add tailwind input
+<details>
+  <summary>Components</summary>
+  <ul>
+    <li>Button</li>
+    <li>Hello</li>
+  </ul>
+</details>
+<details>
+  <summary>Hooks</summary>
+  <ul>
+    <li>useHello</li>
+  </ul>
+</details>
 
-If you want to list all available components, hooks, icons, or tailwind configs, you can use the `list` action.
+<details>
+  <summary>Icons</summary>
+  <ul>
+    <li>Hello</li>
+  </ul>
+</details>
+<details>
+  <summary>Tailwind Configs</summary>
+  <ul>
+    <li>config</li>
+    <li>input</li>
+  </ul>
+</details>
+<br />
+<br />
+<p>If you want to list all available components, hooks, icons, or tailwind configs, you can use the `list` action.</p>
 
 ```bash
-raz list
+$ raz list
 ```
 
 Automatically create the necessary folders if they don't exist.
