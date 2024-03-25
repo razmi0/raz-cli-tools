@@ -290,10 +290,15 @@ async function checkFolders(type: TypesType) {
   }
 }
 
-function findInLibrary({ type, name }: { type: TypesType; name: string }): {
+type FindInLibraryParams = {
+  type: TypesType;
+  name: string;
+};
+type FindInLibraryReturnType = {
   item: LibraryType | null;
   message: string;
-} {
+};
+function findInLibrary({ type, name }: FindInLibraryParams): FindInLibraryReturnType {
   const item = library[type].find((item) => item.name === name);
   return item
     ? { item, message: `Found ${name} ${type} in the library` }

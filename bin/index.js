@@ -125,16 +125,6 @@ function sayBye(exit = 0) {
                     p.note(message[i], color[noteColor](title[i]));
             }
         });
-        // if (action === "add" && initType === "tailwind" && initName === "config") {
-        //   p.note(library.tailwind[0].nextStep?.message[0], color.blue(library.tailwind[0].nextStep?.title[0]));
-        //   p.note(library.tailwind[0].nextStep?.message[1], color.blue(library.tailwind[0].nextStep?.title[1]));
-        // } else if (action === "add" && initType === "tailwind" && initName === "input") {
-        //   p.note(library.tailwind[1].nextStep?.message[0], color.blue(library.tailwind[1].nextStep?.title[0]));
-        //   p.note(library.tailwind[1].nextStep?.message[1], color.blue(library.tailwind[1].nextStep?.title[1]));
-        //}
-        // if (action === "add" && type === "vscode" && name === "config") {
-        //   p.note(library.vscode[0].nextStep?.message[0], color.blue(library.vscode[0].nextStep?.title[0]));
-        // }
     }
     done(exit);
 }
