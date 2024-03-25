@@ -1,14 +1,10 @@
 #!/usr/bin/env node --no-warnings
 import * as p from "@clack/prompts";
-import { accessSync as access, appendFileSync as appendFile, mkdirSync as mkdir, writeFileSync as writeFile } from "fs";
+import { accessSync as access, appendFileSync as appendFile, existsSync as fileExist, mkdirSync as mkdir, writeFileSync as writeFile, } from "fs";
 import path from "path";
 import color from "picocolors";
-import library from "./lib.json" assert { type: "json" }; //  assert { type: "json" }
+import library from "./lib.json" assert { type: "json" };
 p.intro(color.underline(color.yellow("raz-cli")));
-library;
-/**
- * .../projectName/src/...
- */
 const getOutDirs = (rootPath) => {
     return {
         src: {
@@ -38,18 +34,16 @@ const userCmd = process.argv.slice(2);
 const defaultForMain = {
     action: process.argv[2],
     type: process.argv[3],
-    name: process.argv[4], // name string
+    name: process.argv[4],
 };
 const actionsList = ["add", "list"];
 const typesList = ["component", "icon", "hook", "tailwind", "vscode", "types"];
 const flags = ["-c", "-i", "-h", "-t", "-v", "-V", "--verbose", "-H", "--help"];
 let userFlags = userCmd.filter((item) => flags.includes(item));
-// verbose flag
 const verbose = userFlags.includes("-V") || userFlags.includes("--verbose");
 const help = userFlags.includes("-H") || userFlags.includes("--help");
 if (verbose)
     userFlags = userFlags.filter((item) => item !== "-V" && item !== "-H" && item !== "--verbose" && item !== "--help");
-// last flag use to determine the type
 switch (userFlags[userFlags.length - 1] || "") {
     case "-c":
         defaultForMain.type = "component";
@@ -226,9 +220,6 @@ function findInLibrary({ type, name }) {
             message: `Could not find ${name} ${type} in the library\n Please try command raz list to see the list of available items`,
         };
 }
-/*
- * Find at deep = 1 & 2 the propertie path
- */
 function findPath({ type, name }) {
     if (type in outputDir && "path" in outputDir[type])
         return outputDir[type].path;
@@ -237,13 +228,6 @@ function findPath({ type, name }) {
     else
         return false;
 }
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-//////////////**MAIN**//////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
 async function main({ action, type, name } = defaultForMain) {
     basicCmdValidation(action, type, name);
     await checkFolders(type);
@@ -267,7 +251,25 @@ async function main({ action, type, name } = defaultForMain) {
             const path = `${globalPath}/${fileName}`;
             const method = element.item.method ?? "write";
             try {
-                method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+                if (type === "icon") {
+                    method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+                    const iconWrited = library.icon
+                        .map((item) => {
+                        return fileExist(`${globalPath}/${item.fileName}`) ? item.name : "";
+                    })
+                        .filter((icon) => icon !== "" && icon !== "Icon");
+                    const indexComponent = library.icon.find((item) => item.name === "Icon")?.value;
+                    if (iconWrited.length > 0 && name !== "Icon") {
+                        writeFile(`${globalPath}/Icon.tsx`, "/**\n * This file is generated\n **/" +
+                            generateIconIndexImports(iconWrited) +
+                            indexComponent +
+                            generateIconTypes(iconWrited) +
+                            generateIconIndexComponent(iconWrited));
+                    }
+                }
+                else {
+                    method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+                }
                 logIsVerbose("success", `Successfully added`);
             }
             catch (error) {
@@ -305,3 +307,29 @@ function createFolder(folderPath) {
     }
 }
 main();
+function generateIconTypes(iconWrited) {
+    const first = "export type IconNames = ";
+    const body = iconWrited.map((icon, i) => {
+        return `\n  ${i !== 0 ? "|" : ""} "raz-${icon.toLowerCase()}"`;
+    });
+    const last = ";\n";
+    return first + body.join("\n") + last;
+}
+function generateIconIndexImports(iconWrited) {
+    const iconImports = iconWrited.map((icon) => {
+        return `import ${icon} from "./${icon}";\n`;
+    });
+    return iconImports.join("\n");
+}
+function generateIconIndexComponent(iconWrited) {
+    const first = "const Icon = ({ name, ...rest }: IconProps) => {\n    switch (name) {\n";
+    const body = iconWrited.map((icon) => {
+        return `  case "raz-${icon.toLowerCase()}": return <${icon} {...rest} />;`;
+    });
+    const last = `\ndefault: return <></>;\n}};\nexport default Icon;\n`;
+    return first + body.join("\n") + last;
+}
+`
+
+
+`;

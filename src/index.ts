@@ -1,15 +1,19 @@
 #!/usr/bin/env node --no-warnings
 
 import * as p from "@clack/prompts";
-import { accessSync as access, appendFileSync as appendFile, mkdirSync as mkdir, writeFileSync as writeFile } from "fs";
+import {
+  accessSync as access,
+  appendFileSync as appendFile,
+  existsSync as fileExist,
+  mkdirSync as mkdir,
+  writeFileSync as writeFile,
+} from "fs";
 import path from "path";
 import color from "picocolors";
 import type { Colors } from "picocolors/types.js";
 import library from "./lib.json" assert { type: "json" }; //  assert { type: "json" }
 
 p.intro(color.underline(color.yellow("raz-cli")));
-
-library as Libraries;
 
 type LibNames = "component" | "hook" | "icon" | "tailwind" | "vscode" | "types";
 
@@ -331,6 +335,10 @@ async function main({ action, type, name } = defaultForMain) {
   await checkFolders(type);
   switch (action) {
     case "add": {
+      // => lire le nom des fichiers
+      // => determiner les icones deja écrites
+      // => reecrire init en foonction
+
       logIsVerbose("info", `Searching ${name} ${type} in the library`);
       const element = findInLibrary({ type, name });
       if (!element || !element.item) {
@@ -350,7 +358,29 @@ async function main({ action, type, name } = defaultForMain) {
       const path = `${globalPath}/${fileName}`;
       const method = element.item.method ?? "write";
       try {
-        method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+        if (type === "icon") {
+          // => ecrire le nouvelle icon
+          method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+          // => lire le nom des icones deja ecrites
+          const iconWrited = library.icon
+            .map((item) => {
+              return fileExist(`${globalPath}/${item.fileName}`) ? item.name : "";
+            })
+            .filter((icon) => icon !== "" && icon !== "Icon");
+          const indexComponent = library.icon.find((item) => item.name === "Icon")?.value;
+          if (iconWrited.length > 0 && name !== "Icon") {
+            writeFile(
+              `${globalPath}/Icon.tsx`,
+              "/**\n * This file is generated\n **/" +
+                generateIconIndexImports(iconWrited) +
+                indexComponent +
+                generateIconTypes(iconWrited) +
+                generateIconIndexComponent(iconWrited)
+            );
+          }
+        } else {
+          method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+        }
         logIsVerbose("success", `Successfully added`);
       } catch (error) {
         const msg = color.bgRed(`Could not add ${name} ${type} to your project`);
@@ -390,3 +420,34 @@ function createFolder(folderPath: string) {
 }
 
 main();
+
+function generateIconTypes(iconWrited: string[]) {
+  /** */
+  const first = "export type IconNames = ";
+  const body = iconWrited.map((icon, i) => {
+    return `\n  ${i !== 0 ? "|" : ""} "raz-${icon.toLowerCase()}"`;
+  });
+  const last = ";\n";
+  return first + body.join("\n") + last;
+}
+
+function generateIconIndexImports(iconWrited: string[]) {
+  const iconImports = iconWrited.map((icon) => {
+    return `import ${icon} from "./${icon}";\n`;
+  });
+  return iconImports.join("\n");
+}
+
+function generateIconIndexComponent(iconWrited: string[]) {
+  const first = "const Icon = ({ name, ...rest }: IconProps) => {\n    switch (name) {\n";
+  const body = iconWrited.map((icon) => {
+    return `  case "raz-${icon.toLowerCase()}": return <${icon} {...rest} />;`;
+  });
+  const last = `\ndefault: return <></>;\n}};\nexport default Icon;\n`;
+  return first + body.join("\n") + last;
+}
+
+`
+
+
+`;
