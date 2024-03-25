@@ -2,14 +2,16 @@
   "name": "cli-raz",
   "version": "1.0.0",
   "description": "",
-  "main": "bin/index.js",
+  "main": "./bin/index.min.js",
   "type": "module",
   "bin": {
-    "raz": "./bin/index.js"
+    "raz": "./bin/index.min.js"
   },
   "scripts": {
     "test": "test",
-    "dev": "tsc"
+    "dev": "tsc",
+    "wc": "wc -c ./bin/index.min.js",
+    "minify": "uglifyjs ./bin/index.js -o ./bin/index.min.js"
   },
   "author": "razmio",
   "license": "ISC",
