@@ -5,7 +5,7 @@ import { accessSync as access, appendFileSync as appendFile, mkdirSync as mkdir,
 import path from "path";
 import color from "picocolors";
 import type { Colors } from "picocolors/types.js";
-import library from "./lib.json";
+import library from "./lib.json" assert { type: "json" }; //  assert { type: "json" }
 
 p.intro(color.underline(color.yellow("raz-cli")));
 

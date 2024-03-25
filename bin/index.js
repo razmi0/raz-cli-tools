@@ -3,7 +3,7 @@ import * as p from "@clack/prompts";
 import { accessSync as access, appendFileSync as appendFile, mkdirSync as mkdir, writeFileSync as writeFile } from "fs";
 import path from "path";
 import color from "picocolors";
-import library from "./lib.json" assert { type: "json" };
+import library from "./lib.json" assert { type: "json" }; //  assert { type: "json" }
 p.intro(color.underline(color.yellow("raz-cli")));
 library;
 /**
