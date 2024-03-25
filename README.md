@@ -34,14 +34,26 @@ $ raz <action> <type> <name>
 <details>
   <summary>Icons</summary>
   <ul>
-    <li>Hello</li>
+    <li>init</li>
   </ul>
 </details>
 <details>
-  <summary>Tailwind Configs</summary>
+  <summary>Tailwind Config</summary>
   <ul>
     <li>config</li>
     <li>input</li>
+  </ul>
+</details>
+<details>
+  <summary>vsCode config</summary>
+  <ul>
+    <li>config</li>
+  </ul>
+</details>
+<details>
+  <summary>Usefull types</summary>
+  <ul>
+    <li>Prettify<T></li>
   </ul>
 </details>
 <br />
@@ -52,4 +64,20 @@ $ raz <action> <type> <name>
 $ raz list
 ```
 
-Automatically create the necessary folders if they don't exist.
+Will ask to create new folders and files in the project if they don't exist.
+
+### Flags
+
+- `-c` : Type component.
+- `-i` : Type icon.
+- `-h` : Type hook.
+- `-t` : Type tailwind config.
+- `-v` : Type vsCode config.
+
+  <br />
+
+- `-V` : Toggle verbose mode.
+- `--verbose` : Verbose mode.
+- `-H` : Log flags and list all items.
+- `--help` : Help.
+-

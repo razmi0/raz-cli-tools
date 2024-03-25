@@ -8,7 +8,8 @@
     "raz": "./bin/index.js"
   },
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "dev": "tsc"
   },
   "author": "razmio",
   "license": "ISC",
