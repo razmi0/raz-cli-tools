@@ -11,8 +11,10 @@
     "strict": true,
     "skipLibCheck": true /* Skip type checking all .d.ts files. */,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "removeComments": true,
+    "typeRoots": ["./src/@types", "./node_modules/@types"]
   },
   "include": ["src/index.ts"],
-  "exclude": ["node_modules", "bin", "src/components/**/*"]
+  "exclude": ["node_modules", "bin", "src/components/**/*", "src/@types/*"]
 }
