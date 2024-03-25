@@ -22,7 +22,7 @@ const getOutDirs = (rootPath) => {
             path: path.join(rootPath, ".vscode"),
             exist: undefined,
         },
-        types: {
+        type: {
             path: path.join(rootPath, "src", "types"),
             exist: undefined,
         },
@@ -37,8 +37,34 @@ const defaultForMain = {
     name: process.argv[4],
 };
 const actionsList = ["add", "list"];
-const typesList = ["component", "icon", "hook", "tailwind", "vscode", "types"];
-const flags = ["-c", "-i", "-h", "-t", "-v", "-V", "--verbose", "-H", "--help"];
+const typesList = ["component", "icon", "hook", "tailwind", "vscode", "type"];
+const namesList = [
+    {
+        label: "Components",
+        names: library.component.map((item) => item.name),
+    },
+    {
+        label: "Hooks",
+        names: library.hook.map((item) => ("name" in item ? item.name : "")),
+    },
+    {
+        label: "Icons",
+        names: library.icon.map((item) => item.name),
+    },
+    {
+        label: "Tailwinds",
+        names: library.tailwind.map((item) => item.name),
+    },
+    {
+        label: "Vscodes",
+        names: library.vscode.map((item) => item.name),
+    },
+    {
+        label: "Types",
+        names: library.type.map((item) => item.name),
+    },
+];
+const flags = ["-c", "-i", "-h", "-t", "-v", "-T", "-V", "--verbose", "-H", "--help"];
 let userFlags = userCmd.filter((item) => flags.includes(item));
 const verbose = userFlags.includes("-V") || userFlags.includes("--verbose");
 const help = userFlags.includes("-H") || userFlags.includes("--help");
@@ -60,31 +86,12 @@ switch (userFlags[userFlags.length - 1] || "") {
     case "-v":
         defaultForMain.type = "vscode";
         break;
+    case "-T":
+        defaultForMain.type = "type";
+        break;
     default:
         break;
 }
-const namesList = [
-    {
-        label: "Components",
-        names: library.component.map((item) => item.name),
-    },
-    {
-        label: "Hooks",
-        names: library.hook.map((item) => ("name" in item ? item.name : "")),
-    },
-    {
-        label: "Icons",
-        names: library.icon.map((item) => item.name),
-    },
-    {
-        label: "Tailwind",
-        names: library.tailwind.map((item) => item.name),
-    },
-    {
-        label: "Vscode",
-        names: library.vscode.map((item) => item.name),
-    },
-];
 function logList() {
     p.log.step(`${color.blue("actions ")}: ${actionsList.join(", ")}`);
     p.log.step(`${color.blue("types ")}: ${typesList.join(", ")}`);
@@ -104,9 +111,9 @@ function logInfo(arr) {
     return true;
 }
 function sayBye(exit = 0) {
-    const { action, type, name } = defaultForMain;
-    if (exit === 0 && action && type && name && action === "add") {
-        library[type].map((item) => {
+    const { action, type: cmdType, name } = defaultForMain;
+    if (exit === 0 && action && cmdType && name && action === "add") {
+        library[cmdType].map((item) => {
             if (item.name !== name)
                 return;
             if ("nextStep" in item) {
@@ -120,7 +127,7 @@ function sayBye(exit = 0) {
             }
         });
     }
-    if (type === "tailwind") {
+    if (cmdType === "tailwind") {
         p.log.warn(`you should add a vscode config with ${color.blue("raz add vscode config")} if @rules from tailwind throw unknown in your css`);
     }
     done(exit);
@@ -214,30 +221,30 @@ async function checkFolders(type) {
         }
     }
 }
-function findInLibrary({ type, name }) {
-    const item = library[type].find((item) => item.name === name);
+function findInLibrary({ type: cmdType, name }) {
+    const item = library[cmdType].find((item) => item.name === name);
     return item
-        ? { item, message: `Found ${name} ${type} in the library` }
+        ? { item, message: `Found ${name} ${cmdType} in the library` }
         : {
             item: null,
-            message: `Could not find ${name} ${type} in the library\n Please try command raz list to see the list of available items`,
+            message: `Could not find ${name} ${cmdType} in the library\n Please try command raz list to see the list of available items`,
         };
 }
-function findPath({ type, name }) {
-    if (type in outputDir && "path" in outputDir[type])
-        return outputDir[type].path;
-    else if (name in outputDir[type] && "path" in outputDir[type][name])
-        return outputDir[type][name].path;
+function findPath({ type: cmdType, name }) {
+    if (cmdType in outputDir && "path" in outputDir[cmdType])
+        return outputDir[cmdType].path;
+    else if (name in outputDir[cmdType] && "path" in outputDir[cmdType][name])
+        return outputDir[cmdType][name].path;
     else
         return false;
 }
-async function main({ action, type, name } = defaultForMain) {
-    basicCmdValidation(action, type, name);
-    await checkFolders(type);
+async function main({ action, type: cmdType, name } = defaultForMain) {
+    basicCmdValidation(action, cmdType, name);
+    await checkFolders(cmdType);
     switch (action) {
         case "add": {
-            logIsVerbose("info", `Searching ${name} ${type} in the library`);
-            const element = findInLibrary({ type, name });
+            logIsVerbose("info", `Searching ${name} ${cmdType} in the library`);
+            const element = findInLibrary({ type: cmdType, name });
             if (!element || !element.item) {
                 logIsVerbose("error", `${element.message}`);
                 sayBye();
@@ -245,16 +252,16 @@ async function main({ action, type, name } = defaultForMain) {
             }
             logIsVerbose("step", "Found !");
             logIsVerbose("info", "Adding it to your project");
-            const globalPath = findPath({ type, name });
+            const globalPath = findPath({ type: cmdType, name });
             if (!globalPath) {
-                p.log.error(`Could not find path for ${name} ${type}`);
+                p.log.error(`Could not find path for ${name} ${cmdType}`);
                 sayBye(1);
             }
             const { value, fileName } = element.item;
             const path = `${globalPath}/${fileName}`;
             const method = element.item.method ?? "write";
             try {
-                if (type === "icon") {
+                if (cmdType === "icon") {
                     method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
                     const iconWrited = library.icon
                         .map((item) => {
@@ -276,7 +283,7 @@ async function main({ action, type, name } = defaultForMain) {
                 logIsVerbose("success", `Successfully added`);
             }
             catch (error) {
-                const msg = color.bgRed(`Could not add ${name} ${type} to your project`);
+                const msg = color.bgRed(`Could not add ${name} ${cmdType} to your project`);
                 logIsVerbose("error", msg);
                 logIsVerbose("info", `Please try command raz list to see the list of available items`);
             }

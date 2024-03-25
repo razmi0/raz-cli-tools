@@ -136,12 +136,13 @@
             }
         }
     ],
-    "types": [
+    "type": [
         {
             "id": 1,
             "name": "index",
             "fileName": "index.d.ts",
-            "value": "// Add your types here\n\n export type Prettyfy<T> = {\n  [K in keyof T]: T[K];\n};\n"
+            "value": "// Add your types here\n\n export type Prettyfy<T> = {\n  [K in keyof T]: T[K];\n};\n",
+            "method": "append"
         }
     ]
 }
