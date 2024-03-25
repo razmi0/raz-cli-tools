@@ -34,17 +34,13 @@ type LibraryType = {
   };
 };
 
-type Prettify<T> = {
-  [K in keyof T]: T[K];
-} & {};
-
 type ExistType = true | "ENOENT" | undefined;
 
 /**
  * todo add Types
  */
 type TypesType = LibNames;
-type ActionsTypes = "list" | "add";
+type ActionsTypes = "list" | "add" | "init";
 
 type Method = "append" | "write";
 
@@ -79,7 +75,7 @@ const getOutDirs = (rootPath: string) => {
     hook: { path: path.join(rootPath, "src", "hooks"), exist: undefined },
     tailwind: {
       config: { path: path.join(rootPath), exist: undefined },
-      input: { path: path.join(rootPath, "tw"), exist: undefined },
+      input: { path: path.join(rootPath, "src", "tailwind"), exist: undefined },
     },
     vscode: {
       path: path.join(rootPath, ".vscode"),
@@ -107,7 +103,7 @@ const defaultForMain: MainParameters = {
   name: process.argv[4], // name string
 };
 
-const actionsList: readonly ActionsTypes[] = ["add", "list"] as const;
+const actionsList: readonly ActionsTypes[] = ["add", "list", "init"] as const;
 const typesList: readonly TypesType[] = ["component", "icon", "hook", "tailwind", "vscode", "type"] as const;
 
 const namesList: readonly { label: Capitalize<`${TypesType}s`>; names: (string | undefined)[] }[] = [
@@ -141,8 +137,9 @@ const flags = ["-c", "-i", "-h", "-t", "-v", "-T", "-V", "--verbose", "-H", "--h
 let userFlags = userCmd.filter((item) => flags.includes(item));
 // verbose flag
 const verbose = userFlags.includes("-V") || userFlags.includes("--verbose");
+// help flag
 const help = userFlags.includes("-H") || userFlags.includes("--help");
-if (verbose)
+if (verbose || help)
   userFlags = userFlags.filter((item) => item !== "-V" && item !== "-H" && item !== "--verbose" && item !== "--help");
 // last flag use to determine the type
 switch (userFlags[userFlags.length - 1] || "") {
@@ -228,10 +225,18 @@ function writeToEndOfFile(path: string, data: string) {
   }
 }
 
-function basicCmdValidation(action: ActionsTypes, type: TypesType, name: string) {
-  action === "list" && !type && !name && logList();
-  help && logInfo(["Flags : ", ...flags]) && sayBye();
+function handleListAction() {
+  logList();
+}
+async function handleInitAction() {
+  let testedPathsLabels = ["src", ...typesList] as const;
+  for await (const label of testedPathsLabels) {
+    await askToCreateFolder(label);
+  }
+  sayBye();
+}
 
+function basicCmdValidation(action: ActionsTypes, type: TypesType, name: string) {
   const noType = !type;
   const noAction = !action;
   const noName = !name;
@@ -275,13 +280,14 @@ async function askToCreateFolder(type: TypesType | "src") {
 }
 
 async function checkFolders(type: TypesType) {
-  const { src, component, hook, icon, tailwind, vscode } = outputDir;
+  const { src, component, hook, icon, tailwind, vscode, type: typescript } = outputDir;
   src.exist = checkFolderExists(src.path);
   component.exist = checkFolderExists(component.path);
   hook.exist = checkFolderExists(hook.path);
   icon.exist = checkFolderExists(icon.path);
   tailwind.input.exist = checkFolderExists(tailwind.input.path);
   vscode.exist = checkFolderExists(vscode.path);
+  typescript.exist = checkFolderExists(typescript.path);
 
   if (!src.exist || src.exist === "ENOENT") {
     let testedPathsLabels = ["src", ...typesList];
@@ -299,7 +305,9 @@ async function checkFolders(type: TypesType) {
     icon: outputDir.icon,
     tailwind: outputDir.tailwind.input,
     vscode: outputDir.vscode,
+    type: outputDir.type,
   };
+
   for (const [dirType, dir] of Object.entries(directories)) {
     if ((dir.exist === "ENOENT" || !dir.exist) && type === dirType) {
       createFolder(dir.path);
@@ -337,83 +345,6 @@ function findPath({ type: cmdType, name }: { type: TypesType; name: string }) {
   else return false;
 }
 
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-//////////////**MAIN**//////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-////////////////////////////////////////
-
-async function main({ action, type: cmdType, name } = defaultForMain) {
-  basicCmdValidation(action, cmdType, name);
-  await checkFolders(cmdType);
-  switch (action) {
-    case "add": {
-      // => lire le nom des fichiers
-      // => determiner les icones deja écrites
-      // => reecrire init en foonction
-
-      logIsVerbose("info", `Searching ${name} ${cmdType} in the library`);
-      const element = findInLibrary({ type: cmdType, name });
-      if (!element || !element.item) {
-        logIsVerbose("error", `${element.message}`);
-        sayBye();
-        break;
-      }
-      logIsVerbose("step", "Found !");
-      logIsVerbose("info", "Adding it to your project");
-
-      const globalPath = findPath({ type: cmdType, name });
-      if (!globalPath) {
-        p.log.error(`Could not find path for ${name} ${cmdType}`);
-        sayBye(1);
-      }
-      const { value, fileName } = element.item;
-      const path = `${globalPath}/${fileName}`;
-      const method = element.item.method ?? "write";
-      try {
-        if (cmdType === "icon") {
-          // => ecrire le nouvelle icon
-          method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
-          // => lire le nom des icones deja ecrites
-          const iconWrited = library.icon
-            .map((item) => {
-              return fileExist(`${globalPath}/${item.fileName}`) ? item.name : "";
-            })
-            .filter((icon) => icon !== "" && icon !== "Icon");
-          const indexComponent = library.icon.find((item) => item.name === "Icon")?.value;
-          if (iconWrited.length > 0 && name !== "Icon") {
-            writeFile(
-              `${globalPath}/Icon.tsx`,
-              "/**\n * This file is generated\n **/" +
-                generateIconIndexImports(iconWrited) +
-                indexComponent +
-                generateIconTypes(iconWrited) +
-                generateIconIndexComponent(iconWrited)
-            );
-          }
-        } else {
-          method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
-        }
-        logIsVerbose("success", `Successfully added`);
-      } catch (error) {
-        const msg = color.bgRed(`Could not add ${name} ${cmdType} to your project`);
-        logIsVerbose("error", msg);
-        logIsVerbose("info", `Please try command raz list to see the list of available items`);
-      }
-      break;
-    }
-
-    case "list": {
-      logList();
-      break;
-    }
-  }
-
-  sayBye();
-}
-
 function checkFolderExists(folderPath: string) {
   try {
     access(folderPath);
@@ -433,8 +364,6 @@ function createFolder(folderPath: string) {
     sayBye();
   }
 }
-
-main();
 
 function generateIconTypes(iconWrited: string[]) {
   /** */
@@ -462,7 +391,74 @@ function generateIconIndexComponent(iconWrited: string[]) {
   return first + body.join("\n") + last;
 }
 
-`
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+//////////////** MAIN **////////////////
+////////////////////////////////////////
+////////////////////////////////////////
+////////////////////////////////////////
 
+async function main({ action, type: cmdType, name } = defaultForMain) {
+  action === "init" && !cmdType && !name && (await handleInitAction());
+  action === "list" && !cmdType && !name && handleListAction();
+  console.log(help);
+  help && logInfo(["Flags : ", ...flags]) && sayBye();
 
-`;
+  basicCmdValidation(action, cmdType, name);
+  await checkFolders(cmdType);
+
+  logIsVerbose("info", `Searching ${name} ${cmdType} in the library`);
+  const element = findInLibrary({ type: cmdType, name });
+  if (!element || !element.item) {
+    logIsVerbose("error", `${element.message}`);
+    sayBye();
+    return;
+  }
+  logIsVerbose("step", "Found !");
+  logIsVerbose("info", "Adding it to your project");
+
+  const globalPath = findPath({ type: cmdType, name });
+  if (!globalPath) {
+    p.log.error(`Could not find path for ${name} ${cmdType}`);
+    sayBye(1);
+  }
+  const { value, fileName } = element.item;
+  const path = `${globalPath}/${fileName}`;
+  const method = element.item.method ?? "write";
+  try {
+    /** ICON LOGIC */
+    if (cmdType === "icon") {
+      // => ecrire le nouvelle icon
+      method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+      // => lire le nom des icones deja ecrites
+      const iconWrited = library.icon
+        .map((item) => {
+          return fileExist(`${globalPath}/${item.fileName}`) ? item.name : "";
+        })
+        .filter((icon) => icon !== "" && icon !== "Icon");
+      const indexComponent = library.icon.find((item) => item.name === "Icon")?.value;
+      if (iconWrited.length > 0 && name !== "Icon") {
+        writeFile(
+          `${globalPath}/Icon.tsx`,
+          "/**\n * This file is generated\n **/" +
+            generateIconIndexImports(iconWrited) +
+            indexComponent +
+            generateIconTypes(iconWrited) +
+            generateIconIndexComponent(iconWrited)
+        );
+      }
+    } else {
+      method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
+    }
+    logIsVerbose("success", `Successfully added`);
+  } catch (error) {
+    const msg = color.bgRed(`Could not add ${name} ${cmdType} to your project`);
+    logIsVerbose("error", msg);
+    logIsVerbose("info", `Please try command raz list to see the list of available items`);
+  }
+
+  sayBye();
+}
+
+main();
