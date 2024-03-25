@@ -1,32 +1,13 @@
 {
     "component": [
         {
-            "id": 1,
-            "name": "Hello",
-            "fileName": "Hello.tsx",
-            "value": "\n\nconst Hello = () => {\n\treturn <div>Hello World</div>;\n};\n\nexport default Hello;\n"
-        },
-        {
-            "id": 2,
-            "name": "World",
-            "fileName": "World.tsx",
-            "value": "\n\nconst World = () => {\n\treturn <div>World Hello</div>;\n};\n\nexport default World;\n"
-        },
-        {
             "id": 3,
             "name": "Button",
             "fileName": "Button.tsx",
             "value": "import type { ButtonHTMLAttributes, MouseEvent, ReactNode } from 'react';\nimport { useRef, useState } from 'react';\n\ntype ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {\n  children: ReactNode;\n  onClick?: () => void | ((e: MouseEvent<HTMLButtonElement>) => void) | ((e: MouseEvent) => void);\n  ariaLabel: string;\n  loading?: boolean;\n  loader?: ReactNode;\n  disabled?: boolean;\n  className?: string;\n  disabledIfLoading?: boolean;\n  variant?: 'primary' | 'invisible';\n};\n\nconst variantClasses = {\n  primary:\n    'relative flex gap-2 py-1 px-3 whitespace-nowrap rounded-md text-sm border-black/30 border-[1px] font-medium transition-colors ease-out shadow-inner-shadow-dark-sm bg-def-300 hover:bg-def-400 ',\n  invisible: 'h-fit w-fit p-0 m-0 border-0 bg-transparent text-transparent hover:text-transparent hover:bg-transparent',\n};\n\nconst Button = ({\n  children,\n  onClick,\n  loader = <></>,\n  loading = false,\n  disabled = false,\n  disabledIfLoading = true,\n  ariaLabel,\n  className = '',\n  variant = 'primary',\n  type = 'button',\n  ...rest\n}: ButtonProps) => {\n  const [waves, setWaves] = useState<ReactNode[]>([]);\n  const btnRef = useRef<HTMLButtonElement>(null);\n\n  const clickHandler = (e: MouseEvent<HTMLButtonElement>) => {\n    onClick && onClick(e);\n    if (!btnRef.current) return;\n    setWaves((waves) => [...waves, <Wave width={btnRef.current?.offsetWidth} height={btnRef.current?.offsetHeight} />]);\n    setTimeout(() => {\n      setWaves((waves) => waves.slice(1));\n    }, 2100);\n  };\n\n  const disabledClasses =\n    disabledIfLoading && loading\n      ? 'cursor-wait text-def-300 bg-transparent hover:bg-transparent'\n      : disabled\n      ? 'cursor-not-allowed'\n      : 'cursor-pointer';\n\n  return (\n    <button\n      {...rest}\n      onClick={clickHandler}\n      type={type}\n      aria-label={ariaLabel}\n      disabled={disabled}\n      aria-disabled={disabled}\n      className={`${disabledClasses} ${variantClasses[variant]} ${className}`}\n      ref={btnRef}\n    >\n      {children}\n      {loading && loader}\n      {variant !== 'invisible' &&\n        waves.map((wave, i) => (\n          <div key={i} className='absolute left-0 top-0'>\n            {wave}\n          </div>\n        ))}\n    </button>\n  );\n};\n\ntype WaveProps = {\n  height?: number;\n  width?: number;\n};\n\nconst Wave = ({ width, height }: WaveProps) => {\n  const [active, setActive] = useState(false);\n  setTimeout(() => setActive(true), 10);\n  return (\n    <div\n      className={`button-wave wave-motion-appear wave-motion rounded-md ${active ? 'wave-motion-appear-active' : ''}`}\n      style={{ left: '-1px', top: '-1px', width: width || 0 + 'px', height: height || 0 + 'px' }}\n    />\n  );\n};\n\nexport default Button;\n"
         }
     ],
-    "hook": [
-        {
-            "id": 1,
-            "name": "useHello",
-            "fileName": "useHello.ts",
-            "value": "\n\nconst useHello = () => {\n\tconsole.log(\"Hello from useHello\");\n};\n\nexport default useHello;\n"
-        }
-    ],
+    "hook": [],
     "icon": [
         {
             "id": 1,
@@ -122,7 +103,7 @@
             "nextStep": {
                 "title": ["Add this scripts to your package.json", "Tailwind next steps"],
                 "message": [
-                    "\"scripts\": {\n\"tw:build\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css\",\n\"tw:watch\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css --watch\"}",
+                    "\"tw:build\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css\",\n\"tw:watch\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css --watch\"",
                     "1. raz add tailwind input\n2. npm run tw:build OR npm run tw:watch"
                 ],
                 "color": "blue"
@@ -136,8 +117,8 @@
             "nextStep": {
                 "title": ["Add this script to your package.json", "Tailwind next steps"],
                 "message": [
-                    "\"scripts\": {\n\"tw:build\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css\",\n\"tw:watch\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css --watch\"}",
-                    "1. raz add tailwind config\n2. npm run tw:build OR npm run tw:watch"
+                    "\"tw:build\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css\",\n\"tw:watch\": \"npx tailwindcss -i ./tw/input.css -o ./tw/output.css --watch\"",
+                    "1. raz add tailwind config\n2. npm run tw:build OR npm run tw:watch\n"
                 ],
                 "color": "blue"
             }

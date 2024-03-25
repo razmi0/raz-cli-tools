@@ -145,7 +145,7 @@ const namesList = [
   },
   {
     label: "Hooks",
-    names: library.hook.map((item) => item.name),
+    names: (library.hook as { name?: string }[]).map((item) => ("name" in item ? item.name : "")),
   },
   {
     label: "Icons",
@@ -194,6 +194,14 @@ function sayBye(exit = 0 as 0 | 1) {
         for (let i = 0; i < message.length; i++) p.note(message[i], (color as any)[noteColor](title[i]));
       }
     });
+  }
+
+  if (type === "tailwind") {
+    p.log.warn(
+      `you should add a vscode config with ${color.blue(
+        "raz add vscode config"
+      )} if @rules from tailwind throw unknown in your css`
+    );
   }
 
   done(exit);
