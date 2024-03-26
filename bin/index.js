@@ -5,6 +5,23 @@ import path from "path";
 import color from "picocolors";
 import library from "./lib.json" assert { type: "json" };
 p.intro(color.underline(color.yellow("raz-cli")));
+const availableInstallList = [
+    {
+        label: "Tailwind",
+        description: "Add tailwind to your project",
+        command: "npm install -D tailwindcss",
+    },
+    {
+        label: "React-Vite",
+        description: "Add React Vite to your project",
+        command: "npm create vite@latest",
+    },
+];
+function printAvailableInstallList() {
+    availableInstallList.map((item) => {
+        p.log.info(`${color.blue(item.label)} : ${item.description}\n\t\t${item.command}`);
+    });
+}
 const getOutDirs = (rootPath) => {
     return {
         src: {
@@ -127,7 +144,7 @@ function sayBye(exit = 0) {
             }
         });
     }
-    if (cmdType === "tailwind") {
+    if (cmdType === "tailwind" && name === "input") {
         p.log.warn(`you should add a vscode config with ${color.blue("raz add vscode config")} if @rules from tailwind throw unknown in your css`);
     }
     done(exit);
@@ -153,6 +170,7 @@ async function handleInitAction() {
     for await (const label of testedPathsLabels) {
         await askToCreateFolder(label);
     }
+    printAvailableInstallList();
     sayBye();
 }
 function basicCmdValidation(action, type, name) {

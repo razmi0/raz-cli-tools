@@ -61,6 +61,25 @@ type OutputDirType = {
   type: OutputDirData;
 };
 
+const availableInstallList = [
+  {
+    label: "Tailwind",
+    description: "Add tailwind to your project",
+    command: "npm install -D tailwindcss",
+  },
+  {
+    label: "React-Vite",
+    description: "Add React Vite to your project",
+    command: "npm create vite@latest",
+  },
+];
+
+function printAvailableInstallList() {
+  availableInstallList.map((item) => {
+    p.log.info(`${color.blue(item.label)} : ${item.description}\n\t\t${item.command}`);
+  });
+}
+
 /**
  * .../projectName/src/...
  */
@@ -202,7 +221,7 @@ function sayBye(exit = 0 as 0 | 1) {
     });
   }
 
-  if (cmdType === "tailwind") {
+  if (cmdType === "tailwind" && name === "input") {
     p.log.warn(
       `you should add a vscode config with ${color.blue(
         "raz add vscode config"
@@ -235,6 +254,7 @@ async function handleInitAction() {
   for await (const label of testedPathsLabels) {
     await askToCreateFolder(label);
   }
+  printAvailableInstallList();
   sayBye();
 }
 

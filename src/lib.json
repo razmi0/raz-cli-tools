@@ -103,7 +103,7 @@
       "nextStep": {
         "title": ["Add this scripts to your package.json", "Tailwind next steps"],
         "message": [
-          "\n\"tw:build\": \"npx tailwindcss -i ./src/tailwind/input.css -o ./src/tailwind/output.css\",\n\"tw:watch\": \"tw:build --watch\"",
+          "\n\"tw:build\": \"npx tailwindcss -i ./src/tailwind/input.css -o ./src/tailwind/output.css\",\n\"tw:watch\": \"npx tailwindcss -i ./src/tailwind/input.css -o ./src/tailwind/output.css --watch\"",
           "\n1. npm install -D tailwindcss\n2. raz add tailwind input\n3. npm run tw:build OR npm run tw:watch"
         ],
         "color": "blue"
