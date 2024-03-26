@@ -1,7 +1,6 @@
 #!/usr/bin/env node --no-warnings
 
 import * as p from "@clack/prompts";
-import { spawn } from "child_process";
 import {
   accessSync as access,
   appendFileSync as appendFile,
@@ -164,36 +163,6 @@ switch (userFlags[userFlags.length - 1] || "") {
     break;
   default:
     break;
-}
-
-function installPackage(packageName: string) {
-  const installProcess = spawn("npm", ["install", packageName]);
-
-  installProcess.stdout.on("data", (data) => {
-    logIsVerbose("step", `Installing ${packageName}\n stdout: ${data}`);
-  });
-
-  installProcess.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
-    logIsVerbose("error", `Could not install ${packageName}\n stderr: ${data}`);
-    sayBye(1);
-  });
-
-  installProcess.on("close", (code) => {
-    logIsVerbose("success", `Successfully installed ${packageName} with code ${code}`);
-  });
-}
-
-async function askToInstallPackage(packageName: string) {
-  const isOk = await p.select({
-    message: `Do you want to install ${packageName}?`,
-    initialValue: true,
-    options: [
-      { value: true, label: "Yes" },
-      { value: false, label: "No" },
-    ],
-  });
-  isOk && installPackage(packageName);
 }
 
 function logList() {
@@ -479,10 +448,6 @@ async function main({ action, type: cmdType, name } = defaultForMain) {
             generateIconTypes(iconWrited) +
             generateIconIndexComponent(iconWrited)
         );
-      }
-    } else if (cmdType === "tailwind") {
-      if (name === "config") {
-        await askToInstallPackage("tailwindcss");
       }
     } else {
       method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
