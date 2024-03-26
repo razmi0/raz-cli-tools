@@ -193,9 +193,9 @@ function sayBye(exit = 0 as 0 | 1) {
       if ("nextStep" in item) {
         const { nextStep } = item;
         const { title, message } = nextStep!;
-        let noteColor: keyof Colors = "blue";
-        if ("color" in nextStep && typeof nextStep.color === "string") noteColor = nextStep.color as keyof Colors;
-        for (let i = 0; i < message.length; i++) p.note(message[i], (color as any)[noteColor](title[i]));
+        let infoColor: keyof Colors = "blue";
+        if ("color" in nextStep! && typeof nextStep.color === "string") infoColor = nextStep.color as keyof Colors;
+        for (let i = 0; i < message.length; i++) logInfo((color as any)[infoColor](title[i]) + " : " + message[i]);
       }
     });
   }
@@ -402,7 +402,6 @@ function generateIconIndexComponent(iconWrited: string[]) {
 async function main({ action, type: cmdType, name } = defaultForMain) {
   action === "init" && !cmdType && !name && (await handleInitAction());
   action === "list" && !cmdType && !name && handleListAction();
-  console.log(help);
   help && logInfo(["Flags : ", ...flags]) && sayBye();
 
   basicCmdValidation(action, cmdType, name);

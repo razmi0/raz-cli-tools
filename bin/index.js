@@ -119,11 +119,11 @@ function sayBye(exit = 0) {
             if ("nextStep" in item) {
                 const { nextStep } = item;
                 const { title, message } = nextStep;
-                let noteColor = "blue";
+                let infoColor = "blue";
                 if ("color" in nextStep && typeof nextStep.color === "string")
-                    noteColor = nextStep.color;
+                    infoColor = nextStep.color;
                 for (let i = 0; i < message.length; i++)
-                    p.note(message[i], color[noteColor](title[i]));
+                    logInfo(color[infoColor](title[i]) + " : " + message[i]);
             }
         });
     }
@@ -293,7 +293,6 @@ function generateIconIndexComponent(iconWrited) {
 async function main({ action, type: cmdType, name } = defaultForMain) {
     action === "init" && !cmdType && !name && (await handleInitAction());
     action === "list" && !cmdType && !name && handleListAction();
-    console.log(help);
     help && logInfo(["Flags : ", ...flags]) && sayBye();
     basicCmdValidation(action, cmdType, name);
     await checkFolders(cmdType);
