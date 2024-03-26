@@ -15,11 +15,9 @@ import library from "./lib.json" assert { type: "json" }; //  assert { type: "js
 
 p.intro(color.underline(color.yellow("raz-cli")));
 
-type LibNames = "component" | "hook" | "icon" | "tailwind" | "vscode" | "type";
-
-type Libraries = {
-  [key in LibNames]: LibraryType[];
-};
+type LibNames = "component" | "hook" | "icon" | "tailwind" | "vscode" | "type" | "linter";
+// IMPLEMENT THIS
+const testedFolderExistance = ["src", "components", "ui", "hooks", "tailwind", "vscode", "types"] as const;
 
 type LibraryType = {
   id: number;
@@ -39,7 +37,6 @@ type ExistType = true | "ENOENT" | undefined;
 /**
  * todo add Types
  */
-type TypesType = LibNames;
 type ActionsTypes = "list" | "add" | "init";
 
 type Method = "append" | "write";
@@ -59,6 +56,7 @@ type OutputDirType = {
   };
   vscode: OutputDirData;
   type: OutputDirData;
+  linter: OutputDirData;
 };
 
 const availableInstallList = [
@@ -104,6 +102,10 @@ const getOutDirs = (rootPath: string) => {
       path: path.join(rootPath, "src", "types"),
       exist: undefined,
     },
+    linter: {
+      path: path.join(rootPath),
+      exist: undefined,
+    },
   } as OutputDirType;
 };
 
@@ -112,20 +114,20 @@ const outputDir = getOutDirs(projectRoot);
 
 type MainParameters = {
   action: ActionsTypes;
-  type: TypesType;
+  type: LibNames;
   name: string;
 };
 const userCmd = process.argv.slice(2);
 const defaultForMain: MainParameters = {
   action: process.argv[2] as ActionsTypes, // add or list
-  type: process.argv[3] as TypesType, // component or hook or icon or tailwind or vscode or types
+  type: process.argv[3] as LibNames, // component or hook or icon or tailwind or vscode or types
   name: process.argv[4], // name string
 };
 
 const actionsList: readonly ActionsTypes[] = ["add", "list", "init"] as const;
-const typesList: readonly TypesType[] = ["component", "icon", "hook", "tailwind", "vscode", "type"] as const;
+const typesList: readonly LibNames[] = ["component", "icon", "hook", "tailwind", "vscode", "type", "linter"] as const;
 
-const namesList: readonly { label: Capitalize<`${TypesType}s`>; names: (string | undefined)[] }[] = [
+const namesList: readonly { label: Capitalize<`${LibNames}s`>; names: (string | undefined)[] }[] = [
   {
     label: "Components",
     names: library.component.map((item) => item.name),
@@ -150,13 +152,27 @@ const namesList: readonly { label: Capitalize<`${TypesType}s`>; names: (string |
     label: "Types",
     names: library.type.map((item) => item.name),
   },
+  {
+    label: "Linters",
+    names: library.linter.map((item) => item.name),
+  },
 ] as const;
 
-const flags = ["-c", "-i", "-h", "-t", "-v", "-T", "-V", "--verbose", "-H", "--help"];
+const flags = [
+  "-c" /** component **/,
+  "-i" /** icon **/,
+  "-h" /** hook **/,
+  "-t" /** tailwind **/,
+  "-v" /** vscode **/,
+  "-T" /** type **/,
+  "-l" /** linter **/,
+  "-V" /** verbose flag **/,
+  "--verbose",
+  "-H" /** help flag **/,
+  "--help",
+];
 let userFlags = userCmd.filter((item) => flags.includes(item));
-// verbose flag
 const verbose = userFlags.includes("-V") || userFlags.includes("--verbose");
-// help flag
 const help = userFlags.includes("-H") || userFlags.includes("--help");
 if (verbose || help)
   userFlags = userFlags.filter((item) => item !== "-V" && item !== "-H" && item !== "--verbose" && item !== "--help");
@@ -180,6 +196,8 @@ switch (userFlags[userFlags.length - 1] || "") {
   case "-T":
     defaultForMain.type = "type";
     break;
+  case "-l":
+    defaultForMain.type = "linter";
   default:
     break;
 }
@@ -258,12 +276,12 @@ async function handleInitAction() {
   sayBye();
 }
 
-function basicCmdValidation(action: ActionsTypes, type: TypesType, name: string) {
+function basicCmdValidation(action: ActionsTypes, type: LibNames, name: string) {
   const noType = !type;
   const noAction = !action;
   const noName = !name;
 
-  const wrongType = type && !typesList.includes(type as TypesType);
+  const wrongType = type && !typesList.includes(type as LibNames);
   const wrongAction = action && !actionsList.includes(action as ActionsTypes);
   const wrongName = name && !namesList.flatMap((item) => item.names).includes(name);
 
@@ -286,7 +304,7 @@ function basicCmdValidation(action: ActionsTypes, type: TypesType, name: string)
   }
 }
 
-async function askToCreateFolder(type: TypesType | "src") {
+async function askToCreateFolder(type: LibNames | "src") {
   const isTailwind = type === "tailwind";
   const isOk = await p.select({
     message: `Do you want to create a ${type} folder?`,
@@ -301,7 +319,7 @@ async function askToCreateFolder(type: TypesType | "src") {
   isTailwind ? (outputDir[type].input.exist = true) : (outputDir[type].exist = true);
 }
 
-async function checkFolders(type: TypesType) {
+async function checkFolders(type: LibNames) {
   const { src, component, hook, icon, tailwind, vscode, type: typescript } = outputDir;
   src.exist = checkFolderExists(src.path);
   component.exist = checkFolderExists(component.path);
@@ -340,7 +358,7 @@ async function checkFolders(type: TypesType) {
 }
 
 type FindInLibraryParams = {
-  type: TypesType;
+  type: LibNames;
   name: string;
 };
 type FindInLibraryReturnType = {
@@ -360,7 +378,7 @@ function findInLibrary({ type: cmdType, name }: FindInLibraryParams): FindInLibr
 /*
  * Find at deep = 1 & 2 the propertie path
  */
-function findPath({ type: cmdType, name }: { type: TypesType; name: string }) {
+function findPath({ type: cmdType, name }: { type: LibNames; name: string }) {
   if (cmdType in outputDir && "path" in outputDir[cmdType]) return (outputDir[cmdType] as OutputDirData).path;
   else if (name in outputDir[cmdType] && "path" in (outputDir[cmdType] as { [key: string]: OutputDirData })[name])
     return (outputDir[cmdType] as { [key: string]: OutputDirData })[name].path;
