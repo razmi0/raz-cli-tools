@@ -14,6 +14,7 @@ $ raz <action> <type> <name>
 
 - `add` : Add a component, hook, icon, or tailwind config to your project.
 - `list` : List all available components, hooks, icons, or tailwind configs.
+- `init` : Initialize the project with the necessary folders and files.
 
 ### Types and Names
 
@@ -21,20 +22,30 @@ $ raz <action> <type> <name>
   <summary>Components</summary>
   <ul>
     <li>Button</li>
-    <li>Hello</li>
   </ul>
 </details>
 <details>
   <summary>Hooks</summary>
   <ul>
-    <li>useHello</li>
   </ul>
 </details>
-
 <details>
   <summary>Icons</summary>
   <ul>
-    <li>init</li>
+    <li>Icon (index file)</li>
+    <li>Plus</li>
+    <li>Minus</li>
+    <li>ChevronRight</li>
+    <li>Check</li>
+    <li>Cross</li>
+    <li>DotFilled</li>
+    <li>Menu</li>
+    <li>Search</li>
+    <li>Settings</li>
+    <li>SortAscLetters</li>
+    <li>SortDescLetters</li>
+    <li>SortAscNumbers</li>
+    <li>SortDescNumbers</li>
   </ul>
 </details>
 <details>
@@ -53,7 +64,7 @@ $ raz <action> <type> <name>
 <details>
   <summary>Usefull types</summary>
   <ul>
-    <li>Prettify<T></li>
+    <li>index (append types)</li>
   </ul>
 </details>
 <br />
