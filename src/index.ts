@@ -1,6 +1,7 @@
 #!/usr/bin/env node --no-warnings
 
 import * as p from "@clack/prompts";
+import { spawn } from "child_process";
 import {
   accessSync as access,
   appendFileSync as appendFile,
@@ -165,6 +166,36 @@ switch (userFlags[userFlags.length - 1] || "") {
     break;
 }
 
+function installPackage(packageName: string) {
+  const installProcess = spawn("npm", ["install", packageName]);
+
+  installProcess.stdout.on("data", (data) => {
+    logIsVerbose("step", `Installing ${packageName}\n stdout: ${data}`);
+  });
+
+  installProcess.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+    logIsVerbose("error", `Could not install ${packageName}\n stderr: ${data}`);
+    sayBye(1);
+  });
+
+  installProcess.on("close", (code) => {
+    logIsVerbose("success", `Successfully installed ${packageName} with code ${code}`);
+  });
+}
+
+async function askToInstallPackage(packageName: string) {
+  const isOk = await p.select({
+    message: `Do you want to install ${packageName}?`,
+    initialValue: true,
+    options: [
+      { value: true, label: "Yes" },
+      { value: false, label: "No" },
+    ],
+  });
+  isOk && installPackage(packageName);
+}
+
 function logList() {
   p.log.step(`${color.blue("actions ")}: ${actionsList.join(", ")}`);
   p.log.step(`${color.blue("types ")}: ${typesList.join(", ")}`);
@@ -184,7 +215,9 @@ function logInfo(arr: string[] | string) {
   p.log.info(`${(arr as string[]).join(" ")}`);
   return true;
 }
-
+/**
+ * Code 1 goes directly byebye
+ */
 function sayBye(exit = 0 as 0 | 1) {
   const { action, type: cmdType, name } = defaultForMain;
   if (exit === 0 && action && cmdType && name && action === "add") {
@@ -446,6 +479,10 @@ async function main({ action, type: cmdType, name } = defaultForMain) {
             generateIconTypes(iconWrited) +
             generateIconIndexComponent(iconWrited)
         );
+      }
+    } else if (cmdType === "tailwind") {
+      if (name === "config") {
+        await askToInstallPackage("tailwindcss");
       }
     } else {
       method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
