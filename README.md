@@ -1,6 +1,6 @@
 ## RAZ CLI
 
-Allow you to add components, hooks, icons, and tailwind config to your project with a single command.
+Allow you to add prebuilt components, hooks, icons, and tailwind config to your project with a single command.
 
 <small>**Note:** This is a work in progress. The CLI is not yet published to npm.</small>
 
@@ -13,7 +13,7 @@ $ raz <action> <type> <name>
 ### Actions
 
 - `add` : Add a component, hook, icon, or tailwind config to your project.
-- `list` : List all available components, hooks, icons, or tailwind configs.
+- `list` : List all available elements and configs.
 - `init` : Initialize the project with the necessary folders and files.
 
 ### Types and Names
@@ -84,11 +84,6 @@ $ raz <action> <type> <name>
 
 <br />
 <br />
-<p>If you want to list all available components, hooks, icons, or tailwind configs, you can use the `list` action.</p>
-
-```bash
-$ raz list
-```
 
 Will ask to create new folders and files in the project if they don't exist.
 
@@ -99,9 +94,9 @@ Will ask to create new folders and files in the project if they don't exist.
 - `-h` : Type hook.
 - `-t` : Type tailwind config.
 - `-v` : Type vsCode config.
-
-  <br />
-
+- `-T` : Type usefull types.
+- `-l` : Type linter config.
+- `-u` : Type utils.
 - `-V` : Toggle verbose mode.
 - `--verbose` : Verbose mode.
 - `-H` : Log flags and list all items.
@@ -111,5 +106,5 @@ Will ask to create new folders and files in the project if they don't exist.
 
 ---
 
-- [ ] fix : raz add => !forderExist ? => no file writed
-- [ ] convertion tw <=> css
+- [ ] fix : raz add => !forderExist ? => no file writed (replace with check at start , see todo)
+- [ ] service : convertion tw <=> css
