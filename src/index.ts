@@ -230,10 +230,11 @@ switch (userFlags[userFlags.length - 1] || "") {
 }
 
 function logList() {
-  p.log.step(`${color.blue("actions ")}: ${actionsList.join(", ")}`);
-  p.log.step(`${color.blue("types ")}: ${typesList.join(", ")}`);
-  p.log.step(`${color.blue("flags ")}: ${flags.join(", ")}`);
-  namesList.map((item) => p.log.step(`${color.blue(item.label)} : ${item.names.join(", ")}`));
+  const lclActions = color.blue("actions ") + ": " + actionsList.join(", ");
+  const lclTypes = color.blue("types ") + ": " + typesList.join(", ");
+  const lclFls = color.blue("flags") + ": " + flags.join(", ");
+  const lclNames = namesList.map((item) => `${color.blue(item.label)} : ${item.names.join(", ")}`).join("\n");
+  p.log.step(`Listing available items : \n${lclActions}\n${lclTypes}\n${lclFls}\n${lclNames}`);
   sayBye();
 }
 

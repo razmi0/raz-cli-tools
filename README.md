@@ -69,6 +69,19 @@ $ raz <action> <type> <name>
     <li>index (append types)</li>
   </ul>
 </details>
+<details>
+  <summary>Linter</summary>
+  <ul>
+    <li>config</li>
+  </ul>
+</details>
+<details>
+  <summary>Util</summary>
+  <ul>
+    <li>makefile checkpoint add commit push</li>
+  </ul>
+</details>
+
 <br />
 <br />
 <p>If you want to list all available components, hooks, icons, or tailwind configs, you can use the `list` action.</p>
