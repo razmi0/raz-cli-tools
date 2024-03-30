@@ -15,8 +15,23 @@ import library from "./lib.json" assert { type: "json" }; //  assert { type: "js
 
 p.intro(color.underline(color.yellow("raz-cli")));
 
-type LibNames = "component" | "hook" | "icon" | "tailwind" | "vscode" | "type" | "linter";
-// IMPLEMENT THIS
+type LibNames = "component" | "hook" | "icon" | "tailwind" | "vscode" | "type" | "linter" | "util";
+const typesList: readonly LibNames[] = [
+  "component",
+  "icon",
+  "hook",
+  "tailwind",
+  "vscode",
+  "type",
+  "linter",
+  "util",
+] as const;
+
+// ----------------------------------------
+// Todo : add a check for the existence of the folder at each script start
+//      + ask to create it if it does not exist
+//      + add a flag to skip this check
+// ----------------------------------------
 const testedFolderExistance = ["src", "components", "ui", "hooks", "tailwind", "vscode", "types"] as const;
 
 type LibraryType = {
@@ -57,6 +72,7 @@ type OutputDirType = {
   vscode: OutputDirData;
   type: OutputDirData;
   linter: OutputDirData;
+  util: OutputDirData;
 };
 
 const availableInstallList = [
@@ -106,6 +122,10 @@ const getOutDirs = (rootPath: string) => {
       path: path.join(rootPath),
       exist: undefined,
     },
+    util: {
+      path: path.join(rootPath),
+      exist: undefined,
+    },
   } as OutputDirType;
 };
 
@@ -125,7 +145,6 @@ const defaultForMain: MainParameters = {
 };
 
 const actionsList: readonly ActionsTypes[] = ["add", "list", "init"] as const;
-const typesList: readonly LibNames[] = ["component", "icon", "hook", "tailwind", "vscode", "type", "linter"] as const;
 
 const namesList: readonly { label: Capitalize<`${LibNames}s`>; names: (string | undefined)[] }[] = [
   {
@@ -156,6 +175,10 @@ const namesList: readonly { label: Capitalize<`${LibNames}s`>; names: (string | 
     label: "Linters",
     names: library.linter.map((item) => item.name),
   },
+  {
+    label: "Utils",
+    names: library.util.map((item) => item.name),
+  },
 ] as const;
 
 const flags = [
@@ -166,6 +189,7 @@ const flags = [
   "-v" /** vscode **/,
   "-T" /** type **/,
   "-l" /** linter **/,
+  "-u" /** util **/,
   "-V" /** verbose flag **/,
   "--verbose",
   "-H" /** help flag **/,
@@ -198,6 +222,9 @@ switch (userFlags[userFlags.length - 1] || "") {
     break;
   case "-l":
     defaultForMain.type = "linter";
+  case "-u":
+    defaultForMain.type = "util";
+    break;
   default:
     break;
 }

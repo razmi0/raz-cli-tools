@@ -5,6 +5,17 @@ import path from "path";
 import color from "picocolors";
 import library from "./lib.json" assert { type: "json" };
 p.intro(color.underline(color.yellow("raz-cli")));
+const typesList = [
+    "component",
+    "icon",
+    "hook",
+    "tailwind",
+    "vscode",
+    "type",
+    "linter",
+    "util",
+];
+const testedFolderExistance = ["src", "components", "ui", "hooks", "tailwind", "vscode", "types"];
 const availableInstallList = [
     {
         label: "Tailwind",
@@ -43,6 +54,14 @@ const getOutDirs = (rootPath) => {
             path: path.join(rootPath, "src", "types"),
             exist: undefined,
         },
+        linter: {
+            path: path.join(rootPath),
+            exist: undefined,
+        },
+        util: {
+            path: path.join(rootPath),
+            exist: undefined,
+        },
     };
 };
 const projectRoot = process.cwd();
@@ -54,7 +73,6 @@ const defaultForMain = {
     name: process.argv[4],
 };
 const actionsList = ["add", "list", "init"];
-const typesList = ["component", "icon", "hook", "tailwind", "vscode", "type"];
 const namesList = [
     {
         label: "Components",
@@ -80,8 +98,29 @@ const namesList = [
         label: "Types",
         names: library.type.map((item) => item.name),
     },
+    {
+        label: "Linters",
+        names: library.linter.map((item) => item.name),
+    },
+    {
+        label: "Utils",
+        names: library.util.map((item) => item.name),
+    },
 ];
-const flags = ["-c", "-i", "-h", "-t", "-v", "-T", "-V", "--verbose", "-H", "--help"];
+const flags = [
+    "-c",
+    "-i",
+    "-h",
+    "-t",
+    "-v",
+    "-T",
+    "-l",
+    "-u",
+    "-V",
+    "--verbose",
+    "-H",
+    "--help",
+];
 let userFlags = userCmd.filter((item) => flags.includes(item));
 const verbose = userFlags.includes("-V") || userFlags.includes("--verbose");
 const help = userFlags.includes("-H") || userFlags.includes("--help");
@@ -105,6 +144,11 @@ switch (userFlags[userFlags.length - 1] || "") {
         break;
     case "-T":
         defaultForMain.type = "type";
+        break;
+    case "-l":
+        defaultForMain.type = "linter";
+    case "-u":
+        defaultForMain.type = "util";
         break;
     default:
         break;

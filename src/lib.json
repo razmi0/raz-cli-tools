@@ -156,5 +156,17 @@
       "fileName": ".eslintrc.json",
       "value": "module.exports = {\r\n  root: true,\r\n  env: { browser: true, es2020: true },\r\n  extends: [\r\n    \"eslint:recommended\",\r\n    \"plugin:@typescript-eslint/recommended\",\r\n    \"plugin:react-hooks/recommended\",\r\n    \"plugin:jsx-a11y/strict\",\r\n  ],\r\n\r\n  ignorePatterns: [\"dist\", \".eslintrc.cjs\"],\r\n  parser: \"@typescript-eslint/parser\",\r\n  plugins: [\"react-refresh\", \"jsx-a11y\", \"@typescript-eslint\", \"no-re-export\"],\r\n  rules: {\r\n    \"react-refresh/only-export-components\": [\"warn\", { allowConstantExport: true }],\r\n    \"no-re-export/no-re-export\": \"error\",\r\n    \"@typescript-eslint/ban-types\": [\"error\", { types: { \"{}\": false } }],\r\n    \"no-unused-vars\": \"off\",\r\n    \"@typescript-eslint/no-unused-vars\": [\"off\"],\r\n    \"@typescript-eslint/ban-ts-comment\": [\r\n      \"warn\",\r\n      {\r\n        \"ts-ignore\": \"allow-with-description\",\r\n        \"ts-expect-error\": \"allow-with-description\",\r\n        \"ts-nocheck\": \"allow-with-description\",\r\n        \"ts-check\": \"allow-with-description\",\r\n      },\r\n    ],\r\n  },\r\n};\r\n"
     }
+  ],
+  "util": [
+    {
+      "id": 1,
+      "name": "checkpoint",
+      "fileName": "makefile",
+      "value": "checkpoint:\r\n\t@git add -A\r\n\t@git commit -m \"\u23F0 checkpoint : $$(date)\"\r\n\t@git push\r\n\t@echo \"checkpoint done!\"",
+      "nextStep": {
+        "title": ["Run this makefile "],
+        "message": ["make checkpoint"]
+      }
+    }
   ]
 }
