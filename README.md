@@ -81,6 +81,31 @@ $ raz <action> <type> <name>
     <li>makefile checkpoint add commit push</li>
   </ul>
 </details>
+<details>
+  <summary>Textures</summary>
+  <ul>
+    <li>mosaic</li>
+    <li>charcoal-smudge</li>
+    <li>mathematics</li>
+    <li>dots</li>
+    <li>snow</li>
+    <li>dust</li>
+    <li>speckles</li>
+    <li>grunge</li>
+    <li>squares</li>
+    <li>lines</li>
+    <li>stars</li>
+    <li>math</li>
+    <li>wood</li>
+    <li>cotton</li>
+    <li>cubes</li>
+    <li>paper-fibers</li>
+    <li>denim</li>
+    <li>paper</li>
+    <li>pinstripe</li>
+    <li>diag</li>
+  </ul>
+</details>
 
 <br />
 <br />
@@ -88,6 +113,10 @@ $ raz <action> <type> <name>
 Will ask to create new folders and files in the project if they don't exist.
 
 ### Flags
+
+<p> Don't write the entire type argument, use flags :</p>
+
+> Example: `raz add -c Button`
 
 - `-c` : Type component.
 - `-i` : Type icon.
@@ -97,6 +126,7 @@ Will ask to create new folders and files in the project if they don't exist.
 - `-T` : Type usefull types.
 - `-l` : Type linter config.
 - `-u` : Type utils.
+- `-I` : Type textures.
 - `-V` : Toggle verbose mode.
 - `--verbose` : Verbose mode.
 - `-H` : Log flags and list all items.

@@ -14,8 +14,9 @@ const typesList = [
     "type",
     "linter",
     "util",
+    "texture",
 ];
-const testedFolderExistance = ["src", "components", "ui", "hooks", "tailwind", "vscode", "types"];
+const folders = ["src", "public", "type", "component", "hook", "icon", "tailwind", "vscode"];
 const availableInstallList = [
     {
         label: "Tailwind",
@@ -62,6 +63,10 @@ const getOutDirs = (rootPath) => {
             path: path.join(rootPath),
             exist: undefined,
         },
+        public: {
+            path: path.join(rootPath, "public"),
+            exist: undefined,
+        },
     };
 };
 const projectRoot = process.cwd();
@@ -106,6 +111,10 @@ const namesList = [
         label: "Utils",
         names: library.util.map((item) => item.name),
     },
+    {
+        label: "Textures",
+        names: library.texture.map((item) => item.name),
+    },
 ];
 const flags = [
     "-c",
@@ -116,6 +125,7 @@ const flags = [
     "-T",
     "-l",
     "-u",
+    "-I",
     "-V",
     "--verbose",
     "-H",
@@ -150,6 +160,9 @@ switch (userFlags[userFlags.length - 1] || "") {
     case "-u":
         defaultForMain.type = "util";
         break;
+    case "-I":
+        defaultForMain.type = "texture";
+        break;
     default:
         break;
 }
@@ -160,6 +173,15 @@ function logList() {
     const lclNames = namesList.map((item) => `${color.blue(item.label)} : ${item.names.join(", ")}`).join("\n");
     p.log.step(`Listing available items : \n${lclActions}\n${lclTypes}\n${lclFls}\n${lclNames}`);
     sayBye();
+}
+function base64ToPng(string64, path) {
+    try {
+        const trimmedString = string64.replace(/^data:image\/png;base64,/, "");
+        writeFile(path, trimmedString, "base64");
+    }
+    catch (error) {
+        p.log.error(error);
+    }
 }
 function logIsVerbose(param, message) {
     verbose && p.log[param](message);
@@ -189,9 +211,6 @@ function sayBye(exit = 0) {
             }
         });
     }
-    if (cmdType === "tailwind" && name === "input") {
-        p.log.warn(`you should add a vscode config with ${color.blue("raz add vscode config")} if @rules from tailwind throw unknown in your css`);
-    }
     done(exit);
 }
 function done(success) {
@@ -211,8 +230,7 @@ function handleListAction() {
     logList();
 }
 async function handleInitAction() {
-    let testedPathsLabels = ["src", ...typesList];
-    for await (const label of testedPathsLabels) {
+    for await (const label of folders) {
         await askToCreateFolder(label);
     }
     printAvailableInstallList();
@@ -261,7 +279,7 @@ async function askToCreateFolder(type) {
     isTailwind ? (outputDir[type].input.exist = true) : (outputDir[type].exist = true);
 }
 async function checkFolders(type) {
-    const { src, component, hook, icon, tailwind, vscode, type: typescript } = outputDir;
+    const { src, component, hook, icon, tailwind, vscode, type: typescript, public: publicFolder } = outputDir;
     src.exist = checkFolderExists(src.path);
     component.exist = checkFolderExists(component.path);
     hook.exist = checkFolderExists(hook.path);
@@ -269,10 +287,11 @@ async function checkFolders(type) {
     tailwind.input.exist = checkFolderExists(tailwind.input.path);
     vscode.exist = checkFolderExists(vscode.path);
     typescript.exist = checkFolderExists(typescript.path);
+    publicFolder.exist = checkFolderExists(publicFolder.path);
     if (!src.exist || src.exist === "ENOENT") {
-        let testedPathsLabels = ["src", ...typesList];
-        for await (const label of testedPathsLabels) {
-            if (label === type) {
+        for await (const label of folders) {
+            const temp = type === "texture" ? "public" : type;
+            if (label === temp) {
                 await askToCreateFolder(label);
             }
         }
@@ -285,9 +304,11 @@ async function checkFolders(type) {
         tailwind: outputDir.tailwind.input,
         vscode: outputDir.vscode,
         type: outputDir.type,
+        public: outputDir.public,
     };
     for (const [dirType, dir] of Object.entries(directories)) {
-        if ((dir.exist === "ENOENT" || !dir.exist) && type === dirType) {
+        const temp = type === "texture" ? "public" : type;
+        if ((dir.exist === "ENOENT" || !dir.exist) && temp === dirType) {
             createFolder(dir.path);
             logIsVerbose("step", `Created ${dirType} folder`);
             return;
@@ -304,10 +325,11 @@ function findInLibrary({ type: cmdType, name }) {
         };
 }
 function findPath({ type: cmdType, name }) {
-    if (cmdType in outputDir && "path" in outputDir[cmdType])
-        return outputDir[cmdType].path;
-    else if (name in outputDir[cmdType] && "path" in outputDir[cmdType][name])
-        return outputDir[cmdType][name].path;
+    const temp = cmdType === "texture" ? "public" : cmdType;
+    if (temp in outputDir && "path" in outputDir[temp])
+        return outputDir[temp].path;
+    else if (name in outputDir[temp] && "path" in outputDir[temp][name])
+        return outputDir[temp][name].path;
     else
         return false;
 }
@@ -392,6 +414,9 @@ async function main({ action, type: cmdType, name } = defaultForMain) {
                     generateIconTypes(iconWrited) +
                     generateIconIndexComponent(iconWrited));
             }
+        }
+        else if (cmdType === "texture") {
+            base64ToPng(value, path);
         }
         else {
             method === "append" ? writeToEndOfFile(path, value) : writeFile(path, value);
