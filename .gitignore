@@ -3,3 +3,4 @@ node_modules
 .DS_Store
 tailwind.config.js
 src/**/
+eslintrc.js
