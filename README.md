@@ -10,6 +10,7 @@ Allow you to add prebuilt components, hooks, icons, and tailwind config to your 
 > $ git clone https://github.com/razmi0/raz-cli-tools.git
 > $ cd raz-cli-tools
 > $ npm install -g
+> $ raz list
 ```
 
 ### Usage
