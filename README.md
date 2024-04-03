@@ -4,6 +4,14 @@ Allow you to add prebuilt components, hooks, icons, and tailwind config to your 
 
 <small>**Note:** This is a work in progress. The CLI is not yet published to npm.</small>
 
+### Installation
+
+```bash
+> $ git clone https://github.com/razmi0/raz-cli-tools.git
+> $ cd raz-cli-tools
+> $ npm install -g
+```
+
 ### Usage
 
 ```bash
